@@ -38,11 +38,10 @@ For example, you can define the latest version in your `pom.xml` file:
 
 Elasticsearch and Lucene classes need to be in the same JBoss module.
 
-You should define a `module.xml` file like this:
+You should define a `module.xml` file like this in JBOSS_HOME/modules/org/elasticsearch/main:
 
 [source,xml]
 --------------------------------------------------
-<?xml version="1.0" encoding="UTF-8"?>
 <module xmlns="urn:jboss:module:1.1" name="org.elasticsearch">
   <resources>
     <!-- Elasticsearch -->
@@ -77,6 +76,26 @@ You should define a `module.xml` file like this:
 </module>
 --------------------------------------------------
 
+All corresponding elasticsearch libraries should be included into JBOSS_HOME/modules/org/elasticsearch/main directory as well. This archives can be retrieved by the lib folder of every elasticsearch release.
+
+Afterwards, JBoss needs the proper extension and module in its configuration, too.
+
+[source,xml]
+--------------------------------------------------
+[standalone@localhost:9999 /] /extension=org.elasticsearch:add()
+[standalone@localhost:9999 /] /subsystem=ee:write-attribute(name="global-modules",value=[{"name" => "org.elasticsearch", "slot" => "main"}])
+--------------------------------------------------
+
+At this point, JBoss is capabable to run elasticsearch as war archive. 
+
+Repackaging elasticsearch as web application on an application server is described on https://github.com/javanna/elasticsearch-war-example[GitHub - elasticsearch-war-example]. If you want to enable curl http operations on port 9200, http.enabled: true has to be set in you elasticsearch.yml.
+
+In the end, elasticsearch is ready to be deployed on a JBoss EAP6 instance.
+
+[source,xml]
+--------------------------------------------------
+[standalone@localhost:9999 /] deploy elasticsearch.war
+--------------------------------------------------
 
 include::client.asciidoc[]
 
